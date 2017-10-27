@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">VihaanHackathon</string>
+    <string name="action_settings">Settings</string>
+    <string name="train_no">Train No :</string>
+    <string name="accident_area">Accident area :</string>
+    <string name="time">Time :</string>
+</resources>
