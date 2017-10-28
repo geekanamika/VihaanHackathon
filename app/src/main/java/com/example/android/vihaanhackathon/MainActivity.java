@@ -25,6 +25,7 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     HomeScreenAdapter homeScreenAdapter;
     TextView resultsFromJson;
-
+    ArrayList<InformationModel> list ;
     String tag_json_obj = "myTag";
     String url = "http://10.15.2.46:3030/trains";
 
@@ -46,15 +47,15 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         informationList = new ArrayList<>();
-
+        list = new ArrayList<>();
         createDataInformation();
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        homeScreenAdapter = new HomeScreenAdapter(this, informationList, new HomeScreenAdapter.ClickListener() {
+        homeScreenAdapter = new HomeScreenAdapter(this, list, new HomeScreenAdapter.ClickListener() {
             @Override
             public void onItemClick(View v, int position) {
                 Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
-                intent.putExtra("Information", informationList.get(position));
+                intent.putExtra("Information",list.get(position));
                 startActivity(intent);
 
             }
@@ -90,6 +91,35 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONArray response) {
                         Log.d("myTag", response.toString());
+                        for ( int i =0;i<response.length();i++){
+                            try {
+                                JSONObject object = response.getJSONObject(i);
+
+                                JSONArray namesArray = object.getJSONArray("generalNames");
+                                ArrayList<String> passenger = new ArrayList<>();
+                                for(int j=0;j<namesArray.length();j++){
+                                    passenger.add(namesArray.getString(j));
+                                }
+
+                                ArrayList<String> rName= new ArrayList<>();
+                                ArrayList<String> pnr = new ArrayList<>();
+                                JSONArray reservedList = object.getJSONArray("reservedList");
+                                for(int j=0;j<namesArray.length();j++){
+                                    JSONObject resPas = reservedList.getJSONObject(j);
+                                    rName.add(resPas.getString("name"));
+                                    pnr.add(resPas.getString("pnr"));
+                                }
+
+                                InformationModel model = new InformationModel(object.getString("trainNo"),object
+                                .getString("timeOfAccident"),object.getString("reason"),
+                                        object.getString("district"),object.getString("stationCode"),passenger,pnr,rName,object.getInt("unknownIdentities"));
+
+                                list.add(model);
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
                         progressDialog.hide();
                     }
                 }, new Response.ErrorListener() {
