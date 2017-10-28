@@ -18,10 +18,12 @@ public class HomeScreenAdapter extends RecyclerView.Adapter<HomeScreenAdapter.My
 
     public List<InformationModel> myList = new ArrayList<>();
     Context context;
+    ClickListener listener;
 
-    public HomeScreenAdapter(Context context,List<InformationModel> myList) {
+    public HomeScreenAdapter(Context context,List<InformationModel> myList,ClickListener listener) {
         this.myList = myList;
         this.context = context;
+        this.listener = listener;
     }
 
 
@@ -29,8 +31,15 @@ public class HomeScreenAdapter extends RecyclerView.Adapter<HomeScreenAdapter.My
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.home_screen_row, parent, false);
+        final MyViewHolder holder = new MyViewHolder(itemView);
+        itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onItemClick(v, holder.getAdapterPosition());
+            }
+        });
 
-        return new MyViewHolder(itemView);
+        return holder;
     }
 
     @Override
@@ -40,6 +49,11 @@ public class HomeScreenAdapter extends RecyclerView.Adapter<HomeScreenAdapter.My
         holder.time.setText(model.getTime_of_accident());
         holder.accidentArea.setText(model.getReason());
 
+
+    }
+
+    public interface ClickListener {
+        void onItemClick(View v, int position);
 
     }
 

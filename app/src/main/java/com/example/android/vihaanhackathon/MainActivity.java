@@ -1,5 +1,7 @@
 package com.example.android.vihaanhackathon;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -8,9 +10,22 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +34,10 @@ public class MainActivity extends AppCompatActivity {
     List<InformationModel> informationList;
     RecyclerView recyclerView;
     HomeScreenAdapter homeScreenAdapter;
+    TextView resultsFromJson;
+
+    String tag_json_obj = "myTag";
+    String url = "http://10.15.2.46:3030/trains";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,8 +47,18 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         informationList = new ArrayList<>();
 
+        createDataInformation();
+
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        homeScreenAdapter = new HomeScreenAdapter(this,informationList);
+        homeScreenAdapter = new HomeScreenAdapter(this, informationList, new HomeScreenAdapter.ClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
+                intent.putExtra("Information", informationList.get(position));
+                startActivity(intent);
+
+            }
+        });
 
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
@@ -47,6 +76,32 @@ public class MainActivity extends AppCompatActivity {
 //                        .setAction("Action", null).show();
 //            }
 //        });
+    }
+
+    private void createDataInformation() {
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Fetching Information...");
+        progressDialog.show();
+        Log.d("myTag", url);
+
+
+        JsonArrayRequest req = new JsonArrayRequest(url,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        Log.d("myTag", response.toString());
+                        progressDialog.hide();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d("yourTag", "Error: " + error.getMessage().toString());
+                progressDialog.hide();
+            }
+        });
+        Appcontroller.getInstance().addToRequestQueue(req, tag_json_obj);
+
+
     }
 
     private void preapareInformationData() {
@@ -84,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         rName.add("ravi sinha");
         rName.add("puma singh");
 
-        InformationModel model = new InformationModel("110009","16 Oct 2017","fog","Mairwa Jila","MWR",passenger,pnr,rName,10);
+        InformationModel model = new InformationModel("110009", "16 Oct 2017", "fog", "Mairwa Jila", "MWR", passenger, pnr, rName, 10);
         informationList.add(model);
         homeScreenAdapter.notifyDataSetChanged();
     }

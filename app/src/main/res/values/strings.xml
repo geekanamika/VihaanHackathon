@@ -4,4 +4,5 @@
     <string name="train_no">Train No :</string>
     <string name="accident_area">Accident area :</string>
     <string name="time">Time :</string>
+    <string name="title_activity_details">DetailsActivity</string>
 </resources>
