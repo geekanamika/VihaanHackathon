@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
                                 ArrayList<String> rName= new ArrayList<>();
                                 ArrayList<String> pnr = new ArrayList<>();
                                 JSONArray reservedList = object.getJSONArray("reservedList");
-                                for(int j=0;j<namesArray.length();j++){
+                                for(int j=0;j<reservedList.length();j++){
                                     JSONObject resPas = reservedList.getJSONObject(j);
                                     rName.add(resPas.getString("name"));
                                     pnr.add(resPas.getString("pnr"));
